@@ -6,7 +6,6 @@
             [multi-client-ws.middleware :as middleware]
             [compojure.route :as route]
             [taoensso.timbre :as timbre]
-            [taoensso.timbre.appenders.3rd-party.rotor :as rotor]
             [selmer.parser :as parser]
             [environ.core :refer [env]]))
 
@@ -16,13 +15,6 @@
    an app server such as Tomcat
    put any initialization code here"
   []
-
-  (timbre/merge-config!
-    {:level     (if (env :dev) :trace :info)
-     :appenders {:rotor (rotor/rotor-appender
-                          {:path "multi_client_ws.log"
-                           :max-size (* 512 1024)
-                           :backlog 10})}})
 
   (if (env :dev) (parser/cache-off!))
   (timbre/info (str
