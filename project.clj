@@ -33,6 +33,11 @@
                  [migratus "0.8.4"]
                  [conman "0.1.9"]
                  [org.postgresql/postgresql "9.4-1201-jdbc41"]
+                 [org.slf4j/slf4j-log4j12 "1.7.12"]
+                 [log4j "1.2.15" :exclusions [javax.mail/mail
+                                              javax.jms/jms
+                                              com.sun.jdmk/jmxtools
+                                              com.sun.jmx/jmxri]]
                  [http-kit "2.1.19"]]
 
   :min-lein-version "2.0.0"
@@ -40,6 +45,7 @@
   :jvm-opts ["-server"]
 
   :main multi-client-ws.core
+  :migratus {:store :database}
 
   :plugins [[lein-environ "1.0.1"]
             [lein-cljsbuild "1.1.0"]
