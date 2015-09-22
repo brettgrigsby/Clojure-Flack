@@ -7,7 +7,8 @@
             [compojure.route :as route]
             [taoensso.timbre :as timbre]
             [selmer.parser :as parser]
-            [environ.core :refer [env]]))
+            [environ.core :refer [env]]
+            [multi-client-ws.db.core :as db]))
 
 (defn init
   "init will be called once when
@@ -17,6 +18,9 @@
   []
 
   (if (env :dev) (parser/cache-off!))
+
+  (db/connect!)
+
   (timbre/info (str
                  "\n-=[multi-client-ws started successfully"
                  (when (env :dev) " using the development profile")
@@ -27,6 +31,7 @@
    shuts down, put any clean up code here"
   []
   (timbre/info "multi-client-ws is shutting down...")
+  (db/disconnect!)
   (timbre/info "shutdown complete!"))
 
 (def app-routes
