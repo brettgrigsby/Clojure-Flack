@@ -72,5 +72,6 @@
   IPersistentMap
   (sql-value [value] (to-pg-json value))
   IPersistentVector
-  (sql-value [value] (to-pg-json value))))
+  (sql-value [value] (to-pg-json value)))
 
+(println "pizza")
