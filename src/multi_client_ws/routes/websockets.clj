@@ -27,7 +27,7 @@
     (connect! socket)
     (on-close socket (partial disconnect! socket))
     (on-receive socket #(do 
-                          (println socket %) 
+                          (println socket % (type %)) 
                           (notify-clients %)))))
 
 (defroutes websocket-routes
