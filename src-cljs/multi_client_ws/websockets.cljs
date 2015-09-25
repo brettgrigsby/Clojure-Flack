@@ -5,7 +5,7 @@
 (def json-reader (t/reader :json))
 (def json-writer (t/writer :json))
 (def parse-json (partial t/read json-reader))
-(defn breakpoint [] (js* "debugger;"))
+
 
 (defn with-parsing
   [update-fn]
