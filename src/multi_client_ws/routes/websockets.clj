@@ -6,7 +6,8 @@
             [multi-client-ws.db.core :as db]
             [bouncer.core :as b]
             [bouncer.validators :as v]
-            [clojure.string :as str])
+            [clojure.string :as str]
+            [clojure.data.json :as json])
   (import [java.io ByteArrayInputStream]))
 
 (defonce sockets (atom #{}))
@@ -15,6 +16,11 @@
 
 (defn parse-input [map-string parse-key] 
   (get (str/split (str/replace map-string #"]" "") #",") (parse-key parse-map)))
+
+(defn key-a-fy [collection]
+  (into {}
+        (for [[k v] collection]
+          [(keyword k) v])))
 
 (defn connect! [socket]
   (timbre/info "channel open")
@@ -33,6 +39,7 @@
     (connect! socket)
     (on-close socket (partial disconnect! socket))
     (on-receive socket #(do 
+                          (println (:message (key-a-fy (json/read-str %))))
                           (db/save-message! 
                            {:username (parse-input % :username) 
                             :message (parse-input % :message)
