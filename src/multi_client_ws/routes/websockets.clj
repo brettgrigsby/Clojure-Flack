@@ -5,7 +5,7 @@
             [taoensso.timbre :as timbre]
             [multi-client-ws.db.core :as db]
             [bouncer.core :as b]
-            [bouncer.validators :as v]))
+            [bouncer.validators :as v]
             [clojure.string :as str]
             [clojure.data.json :as json]))
 
@@ -28,8 +28,8 @@
     (connect! socket)
     (on-close socket (partial disconnect! socket))
     (on-receive socket #(do
-                          (db/save-message! 
-                           {:username ((json/read-str %) "username") 
+                          (db/save-message!
+                           {:username ((json/read-str %) "username")
                             :message ((json/read-str %) "message")
                             :channel "home"
                             :timestamp (java.util.Date.)})
