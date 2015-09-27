@@ -20,7 +20,7 @@
 
 (defn message-list []
   [:ul
-   (for [[i message] (map-indexed vector @messages)]
+   (for [[i message] (map-indexed vector (reverse @messages))]
      ^{:key i}
      [:li [:strong (message "username")] ": " (message "message")])])
 
@@ -68,10 +68,10 @@
      [:h2 "Welcome to chat, " @username]]]
    [:div.row
     [:div.col-sm-6
-     [message-list]]]
+     [input-field]]]
    [:div.row
     [:div.col-sm-6
-     [input-field]]]])
+     [message-list]]]])
 
 (defn update-messages! [message]
   (println "updating message: " message)

@@ -18,8 +18,5 @@
   (GET "/" [] (home-page))
   (GET "/docs" [] (ok (-> "docs/docs.md" io/resource slurp)))
   (GET "/messages" [] {:status "200"
-                       :header {
-                                "Access-Control-Allow-Origin" "*"
-                                "Acces-Control-Allow-Headers" "Content-Type"
-                                }
+                       :header {}
                        :body (json/write-str (db/get-all-messages) :value-fn date-converter)}))
