@@ -1,6 +1,7 @@
 (ns multi-client-ws.core
   (:require [multi-client-ws.handler :refer [app init destroy]]
             [org.httpkit.server :as http-kit]
+            [multi-client-ws.db.migrations :as migrations]
             [clojure.tools.nrepl.server :as nrepl]
             [taoensso.timbre :as timbre]
             [environ.core :refer [env]])
@@ -65,4 +66,6 @@
     (start-http-server port)))
 
 (defn -main [& args]
-  (start-app args))
+  (cond
+    (some #{"migrate" "rollback"} args) (migrations/migrate args)
+    :else (start-app args)))
