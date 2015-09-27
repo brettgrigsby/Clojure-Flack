@@ -5,7 +5,10 @@
 (def json-reader (t/reader :json))
 (def json-writer (t/writer :json))
 (def parse-json (partial t/read json-reader))
-;; (defn breakpoint [] (js* "debugger;"))
+
+(defn clj->json
+ [ds]
+ (.stringify js/JSON (clj->js ds)))
 
 (defn with-parsing
   [update-fn]
@@ -23,7 +26,7 @@
 (defn send-transit-msg!
   [msg]
   (if @ws-chan
-    (.send @ws-chan (t/write json-writer msg))
+    (.send @ws-chan (clj->json msg))
     (throw (js/Error. "Websocket not available!"))))
 
 (defn make-websocket! [url receive-handler]

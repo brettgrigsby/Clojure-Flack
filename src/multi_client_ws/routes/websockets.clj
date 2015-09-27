@@ -2,12 +2,12 @@
   (:require [compojure.core :refer [GET defroutes]]
             [org.httpkit.server
              :refer [send! with-channel on-close on-receive]]
-            [cognitect.transit :as t]
             [taoensso.timbre :as timbre]
             [multi-client-ws.db.core :as db]
             [bouncer.core :as b]
-            [clojure.edn :as edn]
             [bouncer.validators :as v]))
+            [clojure.string :as str]
+            [clojure.data.json :as json]))
 
 (defonce sockets (atom #{}))
 
@@ -28,6 +28,11 @@
     (connect! socket)
     (on-close socket (partial disconnect! socket))
     (on-receive socket #(do
+                          (db/save-message! 
+                           {:username ((json/read-str %) "username") 
+                            :message ((json/read-str %) "message")
+                            :channel "home"
+                            :timestamp (java.util.Date.)})
                           (notify-clients %)))))
 
 (defroutes websocket-routes
