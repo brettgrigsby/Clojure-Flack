@@ -1,10 +1,15 @@
 (ns multi-client-ws.core
   (:require [reagent.core :as reagent :refer [atom]]
-            [multi-client-ws.websockets :as ws]))
+            [multi-client-ws.websockets :as ws]
+            [cognitect.transit :as t]
+            [ajax.core :refer [GET]]))
 
 (defonce messages (atom []))
 (defonce username (atom nil))
 (defonce current-channel (atom nil))
+
+(def json-reader (t/reader :json))
+(def parse-json (partial t/read json-reader))
 
 (defn channel-list []
   ;;render list of all channels
@@ -75,6 +80,12 @@
 (defn mount-components []
   (reagent/render-component [#'home-page] (.getElementById js/document "app")))
 
+(defn get-initial-messages []
+  (GET "/messages" {:handler (fn [response]
+                               (compare-and-set! messages [] (parse-json response))
+                               (println messages))}))
+
 (defn init! []
   (ws/make-websocket! (str "ws://" (.-host js/location) "/ws") update-messages!)
+  (get-initial-messages)
   (mount-components))
