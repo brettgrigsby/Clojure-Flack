@@ -6,6 +6,7 @@
             [taoensso.timbre :as timbre]
             [multi-client-ws.db.core :as db]
             [bouncer.core :as b]
+            [clojure.edn :as edn]
             [bouncer.validators :as v]))
 
 (defonce sockets (atom #{}))
@@ -26,8 +27,7 @@
   (with-channel request socket
     (connect! socket)
     (on-close socket (partial disconnect! socket))
-    (on-receive socket #(do 
-                          (println socket % (type %)) 
+    (on-receive socket #(do
                           (notify-clients %)))))
 
 (defroutes websocket-routes
