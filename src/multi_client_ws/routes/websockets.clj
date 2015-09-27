@@ -31,7 +31,7 @@
                           (db/save-message!
                            {:username ((json/read-str %) "username")
                             :message ((json/read-str %) "message")
-                            :channel "home"
+                            :channel ((json/read-str %) "channel")
                             :timestamp (java.util.Date.)})
                           (notify-clients %)))))
 

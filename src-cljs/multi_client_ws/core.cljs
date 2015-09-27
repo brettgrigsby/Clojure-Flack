@@ -6,7 +6,7 @@
 
 (defonce messages (atom []))
 (defonce username (atom nil))
-(defonce current-channel (atom nil))
+(defonce current-channel (atom "dj-swig"))
 
 (def json-reader (t/reader :json))
 (def parse-json (partial t/read json-reader))
@@ -27,7 +27,7 @@
 (defn input-keydown [val key-event]
   (let [key-code (.-keyCode key-event)]
     (when (= key-code 13)
-      (ws/send-transit-msg! {:message @val :username @username})
+      (ws/send-transit-msg! {:message @val :username @username, :channel @current-channel})
       (reset! val nil))))
 
 (defn message-input []
@@ -81,9 +81,9 @@
   (reagent/render-component [#'home-page] (.getElementById js/document "app")))
 
 (defn get-initial-messages []
-  (GET "/messages" {:handler (fn [response]
-                               (compare-and-set! messages [] (parse-json response))
-                               (println messages))}))
+  (GET (str "/messages/" @current-channel ) {:handler (fn [response]
+                                                        (swap! messages #(parse-json response))
+                                                        (println messages))}))
 
 (defn init! []
   (ws/make-websocket! (str "ws://" (.-host js/location) "/ws") update-messages!)
