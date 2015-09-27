@@ -15,7 +15,7 @@
   [:ul
    (for [[i message] (map-indexed vector @messages)]
      ^{:key i}
-     [:li (:username message) " says: " (:message message)])])
+     [:li (message "username") " says: " (message "message")])])
 
 (defn input-keydown [val key-event]
   (let [key-code (.-keyCode key-event)]

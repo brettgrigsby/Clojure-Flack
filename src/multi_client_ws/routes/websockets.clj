@@ -12,16 +12,6 @@
 
 (defonce sockets (atom #{}))
 
-(def parse-map {:message 2 :username 4})
-
-(defn parse-input [map-string parse-key] 
-  (get (str/split (str/replace map-string #"]" "") #",") (parse-key parse-map)))
-
-(defn key-a-fy [collection]
-  (into {}
-        (for [[k v] collection]
-          [(keyword k) v])))
-
 (defn connect! [socket]
   (timbre/info "channel open")
   (swap! sockets conj socket))
@@ -38,12 +28,11 @@
   (with-channel request socket
     (connect! socket)
     (on-close socket (partial disconnect! socket))
-    (on-receive socket #(do 
-                          (println (:message (key-a-fy (json/read-str %))))
+    (on-receive socket #(do
                           (db/save-message! 
-                           {:username (parse-input % :username) 
-                            :message (parse-input % :message)
-                            :channel "test-channel"
+                           {:username ((json/read-str %) "username") 
+                            :message ((json/read-str %) "message")
+                            :channel "home"
                             :timestamp (java.util.Date.)})
                           (notify-clients %)))))
 
