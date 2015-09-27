@@ -1,21 +1,28 @@
 (ns multi-client-ws.core
   (:require [reagent.core :as reagent :refer [atom]]
-            [multi-client-ws.websockets :as ws]))
+            [multi-client-ws.websockets :as ws]
+            [cognitect.transit :as t]
+            [ajax.core :refer [GET]]))
 
 (defonce messages (atom []))
 (defonce username (atom nil))
 (defonce current-channel (atom nil))
+
+(def json-reader (t/reader :json))
+(def parse-json (partial t/read json-reader))
+
 (defn channel-list []
   ;;render list of all channels
   ;; if current channel is set, render message list for that channel
   ;; when channel is clicked, set current-channel
+  ;; get request for channels
   )
 
 (defn message-list []
   [:ul
-   (for [[i message] (map-indexed vector @messages)]
+   (for [[i message] (map-indexed vector (reverse @messages))]
      ^{:key i}
-     [:li (message "username") " says: " (message "message")])])
+     [:li [:strong (message "username")] ": " (message "message")])])
 
 (defn input-keydown [val key-event]
   (let [key-code (.-keyCode key-event)]
@@ -39,36 +46,32 @@
     (fn []
       [:input.form-control
        {:type :text
+        :placeholder "Enter your name and press enter"
         :value @value
         :on-change (fn [e] (reset! value (aget e "target" "value")))
         :on-key-down (fn [e] (let [kc (.-keyCode e)]
-                               (println "GOT MESSAGE: " kc)
                                (when (= kc 13)
-                                 (println "hit it!")
                                  (reset! username @value)
                                  (println "username is: " @username))
                                ))}])))
 
-
-(defn name-field []
-  ;; if there is a name set, just render it?
-  ;; otherwise show a form input?
-  (fn [] 
-    (when (nil?  @username)
+(defn input-field []
+  (fn []
+    (if @username
+      [message-input]
       [name-input])))
 
 (defn home-page []
   [:div.container
    [:div.row
     [:div.col-md-12
-     [:h2 "Welcome to chat, " @username]
-     [name-field]]]
+     [:h2 "Welcome to chat, " @username]]]
    [:div.row
     [:div.col-sm-6
-     [message-list]]]
+     [input-field]]]
    [:div.row
     [:div.col-sm-6
-     [message-input]]]])
+     [message-list]]]])
 
 (defn update-messages! [message]
   (println "updating message: " message)
@@ -77,6 +80,12 @@
 (defn mount-components []
   (reagent/render-component [#'home-page] (.getElementById js/document "app")))
 
+(defn get-initial-messages []
+  (GET "/messages" {:handler (fn [response]
+                               (compare-and-set! messages [] (parse-json response))
+                               (println messages))}))
+
 (defn init! []
   (ws/make-websocket! (str "ws://" (.-host js/location) "/ws") update-messages!)
+  (get-initial-messages)
   (mount-components))
