@@ -45,17 +45,17 @@
   (let [value (atom nil)]
     (fn []
       [:span
-      [:label "please enter your name:"]
-      [:input.form-control
-       {:type :text
-        :placeholder "Enter your name and press enter"
-        :value @value
-        :on-change (fn [e] (reset! value (aget e "target" "value")))
-        :on-key-down (fn [e] (let [kc (.-keyCode e)]
-                               (when (= kc 13)
-                                 (reset! username @value)
-                                 (println "username is: " @username))
-                               ))}]])))
+       [:label "please enter your name:"]
+       [:input.form-control
+        {:type :text
+         :placeholder "Enter your name and press enter"
+         :value @value
+         :on-change (fn [e] (reset! value (aget e "target" "value")))
+         :on-key-down (fn [e] (let [kc (.-keyCode e)]
+                                (when (= kc 13)
+                                  (reset! username @value)
+                                  (println "username is: " @username))
+                                ))}]])))
 (defn load-more []
   (fn []
     [:input.btn.btn-primary
