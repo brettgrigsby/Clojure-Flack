@@ -6,17 +6,32 @@
 
 (defonce messages (atom []))
 (defonce username (atom nil))
-(defonce current-channel (atom "dj-swig"))
+(defonce current-channel (atom "watercooler"))
 
 (def json-reader (t/reader :json))
 (def parse-json (partial t/read json-reader))
 
 (defn channel-list []
-  ;;render list of all channels
-  ;; if current channel is set, render message list for that channel
-  ;; when channel is clicked, set current-channel
-  ;; get request for channels
+  [:div.btn-group
+   {:role "group"}
+   [:br]
+   [:button.btn.btn-primary.btn-xs
+    {:type "button"
+     :value "watercooler"
+     :on-click (fn [event] (set-current-channel (aget event "target" "value")))}"Watercooler"]
+   [:button.btn.btn-primary.btn-xs
+    {:type "button"
+     :value "clojure"
+     :on-click (fn [event] (set-current-channel (aget event "target" "value")))}"Clojure"]
+   [:button.btn.btn-primary.btn-xs
+    {:type "button"
+     :value "dj_s-wig"
+     :on-click (fn [event] (set-current-channel (aget event "target" "value")))}"dj_s-wig"]]
   )
+
+(defn set-current-channel [channel-name]
+  (reset! current-channel channel-name)
+  (get-initial-messages))
 
 (defn message-list []
   [:ul
@@ -61,7 +76,7 @@
     [:input.btn.btn-primary
      {:type :button
       :value "Load More Messages"
-      :on-click (fn [] (get-more-messages))}]))
+      :on-click get-more-messages}]))
 
 (defn input-field []
   (fn []
@@ -79,6 +94,10 @@
      [input-field]]]
    [:div.row
     [:div.col-sm-6
+     [channel-list]
+     [:h5 "Current Channel: " @current-channel]]]
+   [:div.row
+    [:div.col-sm-6
      [message-list]]]
    [:div.row
     [:div.col-sm-6
@@ -86,7 +105,8 @@
 
 (defn update-messages! [message]
   (println "updating message: " message)
-  (swap! messages #(apply vector (cons message %))))
+  (when (= (message "channel") @current-channel)
+  (swap! messages #(apply vector (cons message %)))))
 
 (defn mount-components []
   (reagent/render-component [#'home-page] (.getElementById js/document "app")))
