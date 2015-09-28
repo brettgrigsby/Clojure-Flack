@@ -12,6 +12,10 @@ SELECT * FROM messages
 --selects all messages by username
 SELECT * FROM messages WHERE username = :username
 
---name:get-messages-by-channel
---selects all messages by channel
-SELECT * FROM messages WHERE channel = :channel
+--name:get-recent-messages-by-channel
+--selects 30 recent messages by channel
+SELECT * FROM messages WHERE channel = :channel ORDER BY timestamp DESC LIMIT 15
+
+--name:get-messages-by-channel-less-than-id
+--selects 30 messages by channel less than given id
+SELECT * FROM messages WHERE channel = :channel AND id < :id ORDER BY timestamp DESC LIMIT 15
