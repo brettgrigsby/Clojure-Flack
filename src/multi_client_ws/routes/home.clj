@@ -17,6 +17,9 @@
 (defroutes home-routes
   (GET "/" [] (home-page))
   (GET "/docs" [] (ok (-> "docs/docs.md" io/resource slurp)))
-  (GET "/messages/:channel" [channel] {:status "200"
-                                       :header {}
-                                       :body (json/write-str (db/get-messages-by-channel {:channel channel}) :value-fn date-converter)}))
+  (GET "/messages/channel/:channel" [channel] {:status "200"
+                                               :header {}
+                                               :body (json/write-str (db/get-recent-messages-by-channel {:channel channel}) :value-fn date-converter)})
+  (GET "/messages/channel/:channel/message/:id" [channel id] {:status "200"
+                                                              :header{}
+                                                              :body (json/write-str (db/get-messages-by-channel-less-than-id {:channel channel :id (read-string id)}) :value-fn date-converter)}))

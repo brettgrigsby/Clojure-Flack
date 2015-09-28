@@ -20,7 +20,7 @@
 
 (defn message-list []
   [:ul
-   (for [[i message] (map-indexed vector (reverse @messages))]
+   (for [[i message] (map-indexed vector @messages)]
      ^{:key i}
      [:li [:strong (message "username")] ": " (message "message")])])
 
@@ -44,6 +44,8 @@
 (defn name-input []
   (let [value (atom nil)]
     (fn []
+      [:span
+      [:label "please enter your name:"]
       [:input.form-control
        {:type :text
         :placeholder "Enter your name and press enter"
@@ -53,7 +55,13 @@
                                (when (= kc 13)
                                  (reset! username @value)
                                  (println "username is: " @username))
-                               ))}])))
+                               ))}]])))
+(defn load-more []
+  (fn []
+    [:input.btn.btn-primary
+     {:type :button
+      :value "Load More Messages"
+      :on-click (fn [] (get-more-messages))}]))
 
 (defn input-field []
   (fn []
@@ -71,19 +79,26 @@
      [input-field]]]
    [:div.row
     [:div.col-sm-6
-     [message-list]]]])
+     [message-list]]]
+   [:div.row
+    [:div.col-sm-6
+     [load-more]]]])
 
 (defn update-messages! [message]
   (println "updating message: " message)
-  (swap! messages #(conj % message)))
+  (swap! messages #(apply vector (cons message %))))
 
 (defn mount-components []
   (reagent/render-component [#'home-page] (.getElementById js/document "app")))
 
 (defn get-initial-messages []
-  (GET (str "/messages/" @current-channel ) {:handler (fn [response]
-                                                        (swap! messages #(parse-json response))
-                                                        (println messages))}))
+  (GET (str "/messages/channel/" @current-channel ) {:handler (fn [response]
+                                                                (swap! messages #(parse-json response)))}))
+(defn get-more-messages []
+  (let [first-msg-id (get (peek @messages) "id")]
+    (println first-msg-id)
+    (GET (str "/messages/channel/" @current-channel "/message/" first-msg-id) {:handler (fn [response]
+                                                                                          (swap! messages #(vec (concat % (parse-json response)))))})))
 
 (defn init! []
   (ws/make-websocket! (str "ws://" (.-host js/location) "/ws") update-messages!)
