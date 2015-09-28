@@ -34,6 +34,7 @@
                  [conman "0.1.9"]
                  [org.postgresql/postgresql "9.4-1201-jdbc41"]
                  [org.slf4j/slf4j-log4j12 "1.7.12"]
+                 [reagent-forms "0.5.11"]
                  [org.clojure/data.json "0.2.6"]
                  [log4j "1.2.15" :exclusions [javax.mail/mail
                                               javax.jms/jms
